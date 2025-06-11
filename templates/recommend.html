@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendation System</title>
+    <style>
+        .form-control{
+            border: solid brown 3px;
+            width: 400px;
+            margin: 20px;
+            padding: 10px;
+        }
+        .btn{
+            border: solid black 3px;
+            width: 100px;
+            margin: 20px;
+            padding: 10px;
+        }
+        .card-body{
+            color: aqua;
+            margin: 40px;
+        }
+        .card-img {
+            width: 250px;
+            height: 250px;
+            display: block;
+        }
+        .col{
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            gap: 100px;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar">
+        <h1 class="navhead">My book recommender</h1>
+        <ul class="navlist">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommend">recommend</a></li>
+            <li><a>Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="topbooks">Recommend Books</h1>
+                <form action="/recommend_books" method="POST">
+                    <label>
+                        Enter the name of book
+                    </label><br>
+                    <input name="user_input" type="text" class="form-control" placeholder="Enter Book Title" required><br>
+                    <button class="btn">Submit</button>
+                </form>
+            </div>
+            <div class="col">
+            {% if data %}
+            {% for i in data %}
+                <div class="card">
+                    <div class="card-body" >
+                        <img class="card-img" src="{{i[2]}}" alt="1stpic"> 
+                        <h3>{{i[0]}}</h3>
+                        <p>{{i[1]}}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}  
+            </div> 
+        </div>
+    </div>
+
+</body>
+</html>

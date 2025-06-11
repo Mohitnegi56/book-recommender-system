@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book recommender System</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .navbar{
+            padding: 10px;
+            background-color: #00a65a;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            gap: 100px;
+
+        }
+        body{
+            background-color: black;
+        }
+        .navlist{
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            gap: 100px;
+        }
+        .topbooks{
+            color: rgb(76, 72, 72);
+            text-align: center;
+            padding: 10px;
+            margin: 10px;
+        }
+        .card-body{
+            color: aqua;
+            margin: 40px;
+        }
+        .card-img {
+            width: 250px;
+            height: 250px;
+            display: block;
+        }
+        .col-3{
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar">
+        <h1 class="navhead">My book recommender</h1>
+        <ul class="navlist">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommend">recommend</a></li>
+            <li><a>Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="topbooks">TOP 50 BOOKS</h1>
+            </div>
+            <div class="col-3">
+            {% for i in range(book_name|length)%}
+                <div class="card">
+                    <div class="card-body" >
+                        <img class="card-img" src="{{ image[i]}}" alt="1stpic"> 
+                        <h3>{{book_name[i]}}</h3>
+                        <p>{{author[i]}}</p>
+                        <p>Votes - {{votes[i]}}</p>
+                        <p>Rating - {{rating[i]}}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>   
+        </div>
+    </div>
+
+</body>
+</html>
