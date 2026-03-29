@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
 
@@ -23,32 +23,48 @@ def index():
 def recommend_ui():
     return render_template('recommend.html')
 
+
+@app.route('/autocomplete')
+def autocomplete():
+    query = request.args.get('q')
+
+    suggestions = [book for book in pt.index if query.lower() in book.lower()][:10]
+
+    return jsonify(suggestions)
+
+
 @app.route('/recommend_books', methods=['POST'])
 def recommend():
-    user_input = request.form.get('user_input')
+    user_input = request.form.get('user_input').strip()
 
-    # Clean input
-    user_input = user_input.strip()
-
-    # Fuzzy matching (important fix)
     matches = [book for book in pt.index if user_input.lower() in book.lower()]
 
     if len(matches) == 0:
-        return render_template('recommend.html', error="❌ Book not found. Try another name.")
+        return render_template('recommend.html', error="Book not found")
 
     user_input = matches[0]
 
     index = np.where(pt.index == user_input)[0][0]
 
-    similar_items = sorted(
-        list(enumerate(similarity_scores[index])),
-        key=lambda x: x[1],
-        reverse=True
-    )[1:6]
+    similar_items = list(enumerate(similarity_scores[index]))
+
+    ranked = []
+    for i, score in similar_items:
+        book_title = pt.index[i]
+        temp_df = books[books['Book-Title'] == book_title].drop_duplicates('Book-Title')
+
+        if temp_df.shape[0] == 0:
+            continue
+
+        rating = temp_df['Book-Rating'].values[0] if 'Book-Rating' in temp_df else 5
+        weighted_score = score * 0.7 + (rating / 10) * 0.3  # hybrid score
+
+        ranked.append((i, weighted_score))
+
+    ranked = sorted(ranked, key=lambda x: x[1], reverse=True)[1:6]
 
     data = []
-
-    for i in similar_items:
+    for i in ranked:
         temp_df = books[books['Book-Title'] == pt.index[i[0]]].drop_duplicates('Book-Title')
 
         item = []
@@ -61,6 +77,5 @@ def recommend():
     return render_template('recommend.html', data=data)
 
 
-# ---------------- RUN ----------------
 if __name__ == '__main__':
     app.run(debug=True)
