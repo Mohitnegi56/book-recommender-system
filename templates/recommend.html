@@ -1,184 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recommendation System</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<meta charset="UTF-8">
+<title>Recommend Books</title>
 
-    body {
-      background: linear-gradient(to right, #000000, #434343);
-      color: white;
-      padding-bottom: 100px;
-    }
+<style>
+body {
+    background: url('https://images.unsplash.com/photo-1512820790803-83ca734da794') no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial;
+}
 
-    .navbar {
-      padding: 15px 30px;
-      background-color: #00a65a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+.container {
+    text-align: center;
+    margin-top: 50px;
+}
 
-    .navhead {
-      font-size: 28px;
-      color: white;
-    }
+input {
+    padding: 10px;
+    width: 300px;
+}
 
-    .navlist {
-      display: flex;
-      list-style: none;
-      gap: 40px;
-    }
+button {
+    padding: 10px 20px;
+    background: green;
+    color: white;
+    border: none;
+}
 
-    .navlist li a {
-      color: white;
-      text-decoration: none;
-      font-size: 18px;
-      font-weight: bold;
-      transition: color 0.3s;
-    }
+.col-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 20px;
+    padding: 20px;
+}
 
-    .navlist li a:hover {
-      color: yellow;
-    }
+.card {
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+}
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 40px 20px;
-    }
+.card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+</style>
 
-    .topbooks {
-      text-align: center;
-      font-size: 36px;
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 4px #000;
-    }
-
-    form {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    label {
-      font-size: 20px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .form-control {
-      width: 400px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 2px solid #c99f63;
-      outline: none;
-      background: #f0f0f0;
-      color: black;
-      margin: 10px auto;
-    }
-
-    .btn {
-      background-color: #ff5722;
-      color: white;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background-color: #e64a19;
-      transform: scale(1.05);
-    }
-
-    .col {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-    }
-
-    .card {
-      background-color: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 15px;
-      width: 250px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-    }
-
-    .card-img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .card-body {
-      padding-top: 10px;
-      color: #d1f7ff;
-    }
-
-    @media (max-width: 500px) {
-      .form-control {
-        width: 90%;
-      }
-
-      .card {
-        width: 90%;
-      }
-    }
-  </style>
 </head>
+
 <body>
 
-  <nav class="navbar">
-    <h1 class="navhead">📘 My Book Recommender</h1>
-    <ul class="navlist">
-      <li><a href="/">Home</a></li>
-      <li><a href="/recommend">Recommend</a></li>
-      <li><a href="#">Contact</a></li>
-    </ul>
-  </nav>
+<div class="container">
 
-  <div class="container">
-    <h1 class="topbooks">📚 Recommend Books</h1>
-    <form action="/recommend_books" method="POST">
-      <label for="book">Enter the name of a book</label>
-      <input name="user_input" type="text" class="form-control" placeholder="Enter Book Title" required />
-      <br />
-      <button class="btn" type="submit">Submit</button>
-    </form>
+<h1>📚 Book Recommendation</h1>
 
-    <div class="col">
-      {% if data %}
-      {% for i in data %}
-      <div class="card">
-        <div class="card-body">
-          <img class="card-img" src="{{i[2]}}" alt="Book Image" />
-          <h3>{{i[0]}}</h3>
-          <p>Author: {{i[1]}}</p>
-        </div>
-      </div>
-      {% endfor %}
-      {% endif %}
+<form action="/recommend_books" method="POST">
+    <input type="text" name="user_input" placeholder="Enter book name" required>
+    <button type="submit">Recommend</button>
+</form>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+{% if data %}
+    <div class="col-3">
+        {% for i in data %}
+            <div class="card">
+                <img src="{{ i[2] }}">
+                <h3>{{ i[0] }}</h3>
+                <p>{{ i[1] }}</p>
+            </div>
+        {% endfor %}
     </div>
-  </div>
+{% endif %}
+
+</div>
 
 </body>
 </html>
