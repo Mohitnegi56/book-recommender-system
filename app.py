@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import pickle
 import numpy as np
 
+# Load data
 popular_df = pickle.load(open('popular_df.pkl','rb'))
 pt = pickle.load(open('pt.pkl','rb'))
 books = pickle.load(open('books.pkl','rb'))
@@ -9,6 +10,7 @@ similarity_scores = pickle.load(open('similarity_score.pkl','rb'))
 
 app = Flask(__name__)
 
+# ---------------- HOME PAGE ----------------
 @app.route('/')
 def index():
     return render_template('index.html',
@@ -19,52 +21,38 @@ def index():
                            rating=list(popular_df['avg_ratings'].values)
                            )
 
+# ---------------- RECOMMEND UI ----------------
 @app.route('/recommend')
 def recommend_ui():
     return render_template('recommend.html')
 
-
-@app.route('/autocomplete')
-def autocomplete():
-    query = request.args.get('q')
-
-    suggestions = [book for book in pt.index if query.lower() in book.lower()][:10]
-
-    return jsonify(suggestions)
-
-
+# ---------------- RECOMMENDATION LOGIC ----------------
 @app.route('/recommend_books', methods=['POST'])
 def recommend():
-    user_input = request.form.get('user_input').strip()
+    user_input = request.form.get('user_input')
 
+    # Clean input
+    user_input = user_input.strip()
+
+    # Fuzzy matching (important fix)
     matches = [book for book in pt.index if user_input.lower() in book.lower()]
 
     if len(matches) == 0:
-        return render_template('recommend.html', error="Book not found")
+        return render_template('recommend.html', error="❌ Book not found. Try another name.")
 
     user_input = matches[0]
 
     index = np.where(pt.index == user_input)[0][0]
 
-    similar_items = list(enumerate(similarity_scores[index]))
-
-    ranked = []
-    for i, score in similar_items:
-        book_title = pt.index[i]
-        temp_df = books[books['Book-Title'] == book_title].drop_duplicates('Book-Title')
-
-        if temp_df.shape[0] == 0:
-            continue
-
-        rating = temp_df['Book-Rating'].values[0] if 'Book-Rating' in temp_df else 5
-        weighted_score = score * 0.7 + (rating / 10) * 0.3  # hybrid score
-
-        ranked.append((i, weighted_score))
-
-    ranked = sorted(ranked, key=lambda x: x[1], reverse=True)[1:6]
+    similar_items = sorted(
+        list(enumerate(similarity_scores[index])),
+        key=lambda x: x[1],
+        reverse=True
+    )[1:6]
 
     data = []
-    for i in ranked:
+
+    for i in similar_items:
         temp_df = books[books['Book-Title'] == pt.index[i[0]]].drop_duplicates('Book-Title')
 
         item = []
@@ -77,5 +65,6 @@ def recommend():
     return render_template('recommend.html', data=data)
 
 
+# ---------------- RUN ----------------
 if __name__ == '__main__':
     app.run(debug=True)
